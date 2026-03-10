@@ -2,8 +2,8 @@
 FROM gradle:7.6-jdk17-alpine AS build
 WORKDIR /home/gradle/src
 
-# Keshlanishni to'g'ri ishlashi uchun ikkala faylni ham kopiya qilamiz
-COPY build.gradle settings.gradle.kts ./
+# Fayl nomlarini .kts bilan yozamiz
+COPY build.gradle.kts settings.gradle.kts ./
 # Kutubxonalarni yuklab olamiz
 RUN gradle dependencies --no-daemon || return 0
 
