@@ -1,16 +1,16 @@
 package uz.mizanai.client
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import dto.AiResponse
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import uz.mizanai.dto.AiResponse // DTO papkangni importini to'g'irlab qo'y
 
 @Component
 class GeminiClient(
     @Value("\${gemini.api.key}") private val apiKey: String
 ) {
-    // Gemini API manzili (model sifatida 'gemini-1.5-flash' tavsiya qilinadi, juda tez va bepul)
     private val webClient = WebClient.builder()
         .baseUrl("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent")
         .build()
@@ -24,22 +24,29 @@ class GeminiClient(
             )
         )
 
+        // WebClient so'rovi
         val response = webClient.post()
             .uri { it.queryParam("key", apiKey).build() }
             .bodyValue(requestBody)
             .retrieve()
             .bodyToMono(Map::class.java)
-            .block()
+            .block() ?: throw Exception("AI-dan javob kelmadi!")
 
-        // Gemini javobini JSON-dan ajratib olish
-        val candidates = response?.get("candidates") as List<*>
-        val content = (candidates[0] as Map<*, *>)["content"] as Map<*, *>
-        val parts = content["parts"] as List<*>
-        val text = (parts[0] as Map<*, *>)["text"].toString()
+        // 1. Logikani xavfsizroq qilish
+        val candidates = (response["candidates"] as? List<*>)?.firstOrNull() as? Map<*, *>
+        val content = candidates?.get("content") as? Map<*, *>
+        val parts = content?.get("parts") as? List<*>
+        val text = (parts?.firstOrNull() as? Map<*, *>)?.get("text")?.toString()
+            ?: throw Exception("AI javobida format xatosi!")
 
-        // JSON qismini ajratib olish (AI javobini tozalash)
-        val cleanedJson = text.replace("```json", "").replace("```", "").trim()
+        // 2. JSON-ni tozalash (Regex orqali har qanday markdown-ni olib tashlaydi)
+        val cleanedJson = text.replace(Regex("```json|```", RegexOption.IGNORE_CASE), "").trim()
 
-        return objectMapper.readValue(cleanedJson, AiResponse::class.java)
+        // 3. ObjectMapper bilan DTO ga o'girish
+        return try {
+            objectMapper.readValue<AiResponse>(cleanedJson)
+        } catch (e: Exception) {
+            throw Exception("AI javobini JSON-ga o'girib bo'lmadi: $cleanedJson")
+        }
     }
 }

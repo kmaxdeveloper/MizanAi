@@ -16,38 +16,36 @@ class MizanAuditService(
 ) {
 
     fun process(file: MultipartFile, studentName: String, subject: String): AuditResponse {
-        // 1. Faylni matnga aylantirish (PDF yoki DOCX)
-        val text = parser.parse(file)
+        // 1. Faylni matnga aylantirish
+        val text = try {
+            parser.parse(file)
+        } catch (e: Exception) {
+            throw RuntimeException("Faylni o'qib bo'lmadi: ${e.message}")
+        }
 
-        // 2. AI uchun Prompt (kengaytirilgan)
+        // 2. Prompt (Sen yozgan formatga moslab)
         val prompt = """
             Fan: $subject
-            Talabaning ishi: 
-            ---
-            $text
-            ---
-            Vazifa: Ushbu matnni akademik uslub, mavzuni yoritilishi va imlo xatolari bo'yicha tahlil qiling.
-            Javobni quyidagi formatda qaytaring (faqat JSON):
-            {"baho": 0-5, "izoh": "Qisqacha tanqidiy izoh"}
+            Talabaning ishi: $text
+            
+            Ushbu ishni tekshiring va quyidagi JSON formatida javob bering:
+            {"baho": 0-5, "izoh": "Izohingiz", "mistakes": ["xato 1", "xato 2"]}
         """.trimIndent()
 
-        // 3. AI-dan tahlilni olish
+        // 3. AI tahlili
         val aiResult = aiClient.getAiAnalysis(prompt)
 
         // 4. Bazaga saqlash
-        // Log yaratamiz
         val log = AuditLog(
             studentName = studentName,
             subjectName = subject,
-            extractedText = text,
+            extractedText = text.take(2000), // Bazada joy tejash uchun
             score = aiResult.score,
             feedback = aiResult.feedback
         )
-
-        // Bazaga saqlaymiz
         repository.save(log)
 
-        // 5. Natijani qaytaramiz
+        // 5. Natija
         return AuditResponse(
             score = aiResult.score,
             feedback = aiResult.feedback
