@@ -1,6 +1,7 @@
-package client
+package uz.mizanai.client
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import dto.AiResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -42,5 +43,3 @@ class GeminiClient(
         return objectMapper.readValue(cleanedJson, AiResponse::class.java)
     }
 }
-
-data class AiResponse(val score: Int, val feedback: String)
