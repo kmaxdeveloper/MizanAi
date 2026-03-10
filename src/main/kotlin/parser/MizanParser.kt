@@ -1,4 +1,4 @@
-package parser
+package uz.mizanai.parser
 
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.text.PDFTextStripper

@@ -1,12 +1,12 @@
-package service
+package uz.mizanai.service
 
-import domain.AuditLog
-import dto.AuditResponse
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
-import parser.MizanParser
-import repository.AuditLogRepository
 import uz.mizanai.client.GeminiClient
+import uz.mizanai.domain.AuditLog
+import uz.mizanai.dto.AuditResponse
+import uz.mizanai.parser.MizanParser
+import uz.mizanai.repository.AuditLogRepository
 
 @Service
 class MizanAuditService(

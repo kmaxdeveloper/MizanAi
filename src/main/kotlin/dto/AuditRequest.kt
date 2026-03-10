@@ -1,4 +1,4 @@
-package dto
+package uz.mizanai.dto
 
 data class AuditRequest(
     val studentName: String,

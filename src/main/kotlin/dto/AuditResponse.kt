@@ -1,4 +1,4 @@
-package dto
+package uz.mizanai.dto
 
 data class AuditResponse(
     val score: Int,

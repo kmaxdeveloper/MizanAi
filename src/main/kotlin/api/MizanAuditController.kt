@@ -1,10 +1,10 @@
 package uz.mizanai.api
 
-import dto.AuditResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import service.MizanAuditService
+import uz.mizanai.dto.AuditResponse
+import uz.mizanai.service.MizanAuditService
 
 @RestController
 @RequestMapping("/api/audit")
