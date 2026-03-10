@@ -2,10 +2,10 @@ package client
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import dto.AiResponse
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.beans.factory.annotation.Value
+import uz.mizanai.dto.AiResponse
 
 @Component
 class OpenAIClient(
